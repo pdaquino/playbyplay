@@ -1,0 +1,15 @@
+﻿<Page
+    x:Class="FootballAnalyzer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FootballAnalyzer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <MediaElement HorizontalAlignment="Left" Height="680" Margin="45,51,0,0" VerticalAlignment="Top" Width="1282" Name="VideoPlayer"/> 
+        <Canvas HorizontalAlignment="Left" Height="703" Background="AliceBlue" Opacity="0.3" Margin="23,22,0,0" VerticalAlignment="Top" Width="1298" Name="InkCanvas"/>
+
+    </Grid>
+</Page>
