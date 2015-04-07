@@ -8,8 +8,10 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <MediaElement HorizontalAlignment="Left" Height="680" Margin="45,51,0,0" VerticalAlignment="Top" Width="1282" Name="VideoPlayer"/> 
-        <Canvas HorizontalAlignment="Left" Height="703" Background="AliceBlue" Opacity="0.3" Margin="23,22,0,0" VerticalAlignment="Top" Width="1298" Name="InkCanvas"/>
 
+        <Canvas HorizontalAlignment="Left" Height="735" Opacity="1" Margin="35,10,0,0" VerticalAlignment="Top" Width="1298" Name="InkCanvas">
+            <MediaElement HorizontalAlignment="Left" Height="613" VerticalAlignment="Top" Width="1189" Name="VideoPlayer" Canvas.Left="41" Canvas.Top="61"/>
+            <Button Content="X" Canvas.Left="1189" Canvas.Top="26" Click="Button_Click"/>
+        </Canvas>
     </Grid>
 </Page>

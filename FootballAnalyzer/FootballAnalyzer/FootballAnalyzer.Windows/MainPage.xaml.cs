@@ -40,10 +40,15 @@ namespace FootballAnalyzer
         {
             InkCanvas.PointerPressed += OnCanvasPointerPressed;
             InkCanvas.PointerMoved += OnCanvasPointerMoved;
-            InkCanvas.PointerReleased += (s, e) => e.Handled = true;
+            InkCanvas.PointerReleased += (s, e) =>
+            {
+                m_isDrawing = false;
+                e.Handled = true;
+            };
         }
 
         private Point m_PreviousContactPoint;
+        private bool m_isDrawing = false;
 
         private double CalculateDistance(double x1, double y1, double x2, double y2)
         {
@@ -51,9 +56,30 @@ namespace FootballAnalyzer
             return d;
         }
 
+        private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            m_isDrawing = true;
+            // Get information about the pointer location.
+            PointerPoint pt = e.GetCurrentPoint(InkCanvas);
+            m_PreviousContactPoint = pt.Position;
+
+            // Accept input only from a pen or mouse with the left button pressed.
+            PointerDeviceType pointerDevType = e.Pointer.PointerDeviceType;
+            if (pointerDevType == PointerDeviceType.Pen ||
+                pointerDevType == PointerDeviceType.Mouse && pt.Properties.IsLeftButtonPressed)
+            {
+                e.Handled = true;
+            }
+            else if (pointerDevType == PointerDeviceType.Touch)
+            {
+                // Process touch input
+            }
+
+        }
+
         private void OnCanvasPointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            if (true)//e.Pointer.PointerId == m_PenId)
+            if (m_isDrawing)//e.Pointer.PointerId == m_PenId)
             {
                 PointerPoint pt = e.GetCurrentPoint(InkCanvas);
 
@@ -88,26 +114,6 @@ namespace FootballAnalyzer
             
         }
 
-        private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            // Get information about the pointer location.
-            PointerPoint pt = e.GetCurrentPoint(InkCanvas);
-            m_PreviousContactPoint = pt.Position;
-
-            // Accept input only from a pen or mouse with the left button pressed.
-            PointerDeviceType pointerDevType = e.Pointer.PointerDeviceType;
-            if (pointerDevType == PointerDeviceType.Pen ||
-                pointerDevType == PointerDeviceType.Mouse && pt.Properties.IsLeftButtonPressed)
-            {
-                e.Handled = true;
-            }
-            else if (pointerDevType == PointerDeviceType.Touch)
-            {
-                // Process touch input
-            }
-
-        }
-
         private async void StartVideo()
         {
             var folder = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFolderAsync("Videos");
@@ -118,6 +124,18 @@ namespace FootballAnalyzer
             VideoPlayer.SetSource(stream, file.ContentType);
             VideoPlayer.DefaultPlaybackRate = 0.75;
             VideoPlayer.Play();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var oldChildren = InkCanvas.Children.ToList();
+            foreach (var child in oldChildren)
+            {
+                if (child is Line)
+                {
+                    InkCanvas.Children.Remove(child);
+                }
+            }
         }
     }
 }
