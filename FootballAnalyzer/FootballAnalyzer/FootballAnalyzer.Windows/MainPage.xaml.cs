@@ -123,7 +123,6 @@ namespace FootballAnalyzer
             VideoPlayer.AreTransportControlsEnabled = true;
             VideoPlayer.SetSource(stream, file.ContentType);
             VideoPlayer.DefaultPlaybackRate = 0.75;
-            VideoPlayer.Play();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -186,7 +185,7 @@ namespace FootballAnalyzer
                 double b = CalculateDistance(centerX, centerY, newPoint.X, newPoint.Y);
                 double a = CalculateDistance(previousManipulation.X, previousManipulation.Y, newPoint.X, newPoint.Y);
                 double cos = (b * b + c * c - a * a) / (2 * b * c);
-                
+
                 //cos = Math.Min(1.0, cos);
                 //cos = Math.Max(0.0, cos);
                 double deltaAlpha = Math.Acos(cos);
@@ -196,55 +195,71 @@ namespace FootballAnalyzer
                     int jhga = 42;
                 }
                 double deltaAlphaInDeg = deltaAlpha * 360 / (2 * Math.PI);
-                if (deltaAlphaInDeg < 1.0)
+                if (deltaAlphaInDeg > 1.0)
                 {
-                    return;
-                }
-                totalAngularChange += deltaAlphaInDeg;
-                VelocitiesLabel.Text = "Total = " + totalAngularChange;
+                    totalAngularChange += deltaAlphaInDeg;
+                    VelocitiesLabel.Text = "Total = " + totalAngularChange;
 
-                // clockwise or counter clockwise?
-                double deltaXNew = newPoint.X - centerX;
-                double deltaYNew = newPoint.Y - centerY;
-                double deltaXOld = previousManipulation.X - centerX;
-                double deltaYOld = previousManipulation.Y - centerY;
+                    // clockwise or counter clockwise?
+                    double deltaXNew = newPoint.X - centerX;
+                    double deltaYNew = newPoint.Y - centerY;
+                    double deltaXOld = previousManipulation.X - centerX;
+                    double deltaYOld = previousManipulation.Y - centerY;
 
-                double degNew = Math.Atan2(deltaYNew, deltaXNew);
-                double degOld = Math.Atan2(deltaYOld, deltaXOld);
-                bool goingCounterclockwise = false;
-                if(degNew < degOld)
-                {
-                    VelocitiesLabel.Text += " (CC)";
-                    goingCounterclockwise = true;
-                    
+                    double degNew = Math.Atan2(deltaYNew, deltaXNew);
+                    double degOld = Math.Atan2(deltaYOld, deltaXOld);
+                    bool goingCounterclockwise = false;
+                    if (degNew < degOld)
+                    {
+                        VelocitiesLabel.Text += " (CC)";
+                        goingCounterclockwise = true;
+
+                    }
+                    else
+                    {
+                        VelocitiesLabel.Text += " (C)";
+                    }
+
+
+                    //
+                    // control video
+                    // normal playback = 13s / 360 degrees
+                    //
+                    double normalRatePeriod = 6000;
+                    double manipulationTime = DateTime.Now.Subtract(previousManipulationTime).TotalMilliseconds;
+                    double videoDiffInMs = normalRatePeriod * deltaAlpha / (2 * Math.PI);
+                    if (goingCounterclockwise)
+                    {
+                        videoDiffInMs *= -1;
+                    }
+                    VideoPlayer.Position = VideoPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
                 }
                 else
                 {
-                    VelocitiesLabel.Text += " (C)";
+                    System.Diagnostics.Debug.WriteLine("Ignoring deltaAlpha too small: " + deltaAlphaInDeg);
+                    return;
                 }
-
-
-                //
-                // control video
-                // normal playback = 13s / 360 degrees
-                //
-                double normalRatePeriod = 6000;
-                double manipulationTime = DateTime.Now.Subtract(previousManipulationTime).TotalMilliseconds;
-                double videoDiffInMs = normalRatePeriod * deltaAlpha / (2 * Math.PI);
-                if (goingCounterclockwise)
-                {
-                    videoDiffInMs *= -1;
-                }
-                VideoPlayer.Position = VideoPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
             }
 
             previousManipulation = newPoint;
             previousManipulationTime = DateTime.Now;
+            e.Handled = true;
         }
 
         private void Dial_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             previousManipulationTime = DateTime.MinValue;
+            System.Diagnostics.Debug.WriteLine("Manipulation completed");
+        }
+
+        private void Dial_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Manipulation started");
+        }
+
+        private void Dial_ManipulationInertiaStarting(object sender, ManipulationInertiaStartingRoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Inertia started");
         }
     }
 }
