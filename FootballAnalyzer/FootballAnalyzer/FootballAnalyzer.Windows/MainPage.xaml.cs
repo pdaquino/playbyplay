@@ -137,5 +137,37 @@ namespace FootballAnalyzer
                 }
             }
         }
+
+        class ValueAndTime {
+            public double value;
+            public DateTime time;
+        }
+
+        ValueAndTime lastValue = null;
+        private void Slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            if (lastValue == null)
+            {
+                lastValue = new ValueAndTime
+                {
+                    value = e.NewValue,
+                    time = DateTime.Now
+                };
+            }
+            else
+            {
+                int timeDiff = DateTime.Now.Subtract(lastValue.time).Milliseconds;
+                double speed = (e.NewValue - e.OldValue) / timeDiff;
+                double playbackRate = speed / 0.02;
+                if (VideoPlayer != null)
+                {
+                    int currentPos = VideoPlayer.Position.Milliseconds;
+                    double deltaPos = timeDiff * speed / 0.02;
+                    int newPos = (int)Math.Round(currentPos + deltaPos);
+                    VideoPlayer.Position= new TimeSpan(0, 0, 0, newPos);
+                }
+            }
+
+        }
     }
 }

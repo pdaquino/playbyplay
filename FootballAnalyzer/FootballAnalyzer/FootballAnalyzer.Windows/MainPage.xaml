@@ -12,6 +12,7 @@
         <Canvas HorizontalAlignment="Left" Height="735" Opacity="1" Margin="35,10,0,0" VerticalAlignment="Top" Width="1298" Name="InkCanvas">
             <MediaElement HorizontalAlignment="Left" Height="613" VerticalAlignment="Top" Width="1189" Name="VideoPlayer" Canvas.Left="41" Canvas.Top="61"/>
             <Button Content="X" Canvas.Left="1189" Canvas.Top="26" Click="Button_Click"/>
+            <Slider Canvas.Left="180" Canvas.Top="675" Width="291" Value="50" Name="Slider" ValueChanged="Slider_ValueChanged"/>
         </Canvas>
     </Grid>
 </Page>
