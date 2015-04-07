@@ -161,13 +161,90 @@ namespace FootballAnalyzer
                 double playbackRate = speed / 0.02;
                 if (VideoPlayer != null)
                 {
-                    int currentPos = VideoPlayer.Position.Milliseconds;
+                    double currentPos = VideoPlayer.Position.TotalMilliseconds;
                     double deltaPos = timeDiff * speed / 0.02;
-                    int newPos = (int)Math.Round(currentPos + deltaPos);
-                    VideoPlayer.Position= new TimeSpan(0, 0, 0, newPos);
+                    double newPos = currentPos + deltaPos;
+                    VideoPlayer.Position = TimeSpan.FromMilliseconds(newPos);
+                    System.Diagnostics.Debug.WriteLine("New pos: " + VideoPlayer.Position.ToString());
                 }
             }
 
+        }
+
+        private double totalAngularChange = 0;
+        private Point previousManipulation;
+        DateTime previousManipulationTime = DateTime.MinValue;
+        private void Ellipse_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            var visual = Dial.TransformToVisual(this);
+            Point newPoint = visual.TransformPoint(e.Position);
+            if (previousManipulationTime != DateTime.MinValue)
+            {
+                double centerX = Canvas.GetLeft(Dial) + Dial.ActualWidth / 2;
+                double centerY = Canvas.GetTop(Dial) + Dial.ActualHeight / 2;
+                double c = CalculateDistance(centerX, centerY, previousManipulation.X, previousManipulation.Y);
+                double b = CalculateDistance(centerX, centerY, newPoint.X, newPoint.Y);
+                double a = CalculateDistance(previousManipulation.X, previousManipulation.Y, newPoint.X, newPoint.Y);
+                double cos = (b * b + c * c - a * a) / (2 * b * c);
+                
+                //cos = Math.Min(1.0, cos);
+                //cos = Math.Max(0.0, cos);
+                double deltaAlpha = Math.Acos(cos);
+
+                if (Double.IsNaN(deltaAlpha))
+                {
+                    int jhga = 42;
+                }
+                double deltaAlphaInDeg = deltaAlpha * 360 / (2 * Math.PI);
+                if (deltaAlphaInDeg < 1.0)
+                {
+                    return;
+                }
+                totalAngularChange += deltaAlphaInDeg;
+                VelocitiesLabel.Text = "Total = " + totalAngularChange;
+
+                // clockwise or counter clockwise?
+                double deltaXNew = newPoint.X - centerX;
+                double deltaYNew = newPoint.Y - centerY;
+                double deltaXOld = previousManipulation.X - centerX;
+                double deltaYOld = previousManipulation.Y - centerY;
+
+                double degNew = Math.Atan2(deltaYNew, deltaXNew);
+                double degOld = Math.Atan2(deltaYOld, deltaXOld);
+                bool goingCounterclockwise = false;
+                if(degNew < degOld)
+                {
+                    VelocitiesLabel.Text += " (CC)";
+                    goingCounterclockwise = true;
+                    
+                }
+                else
+                {
+                    VelocitiesLabel.Text += " (C)";
+                }
+
+
+                //
+                // control video
+                // normal playback = 13s / 360 degrees
+                //
+                double normalRatePeriod = 6000;
+                double manipulationTime = DateTime.Now.Subtract(previousManipulationTime).TotalMilliseconds;
+                double videoDiffInMs = normalRatePeriod * deltaAlpha / (2 * Math.PI);
+                if (goingCounterclockwise)
+                {
+                    videoDiffInMs *= -1;
+                }
+                VideoPlayer.Position = VideoPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
+            }
+
+            previousManipulation = newPoint;
+            previousManipulationTime = DateTime.Now;
+        }
+
+        private void Dial_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            previousManipulationTime = DateTime.MinValue;
         }
     }
 }

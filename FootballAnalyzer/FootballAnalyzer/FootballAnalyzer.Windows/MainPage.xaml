@@ -10,9 +10,11 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <Canvas HorizontalAlignment="Left" Height="735" Opacity="1" Margin="35,10,0,0" VerticalAlignment="Top" Width="1298" Name="InkCanvas">
-            <MediaElement HorizontalAlignment="Left" Height="613" VerticalAlignment="Top" Width="1189" Name="VideoPlayer" Canvas.Left="41" Canvas.Top="61"/>
+            <MediaElement HorizontalAlignment="Left" Height="457" VerticalAlignment="Top" Width="970" Name="VideoPlayer" Canvas.Left="-17" Canvas.Top="10"/>
             <Button Content="X" Canvas.Left="1189" Canvas.Top="26" Click="Button_Click"/>
-            <Slider Canvas.Left="180" Canvas.Top="675" Width="291" Value="50" Name="Slider" ValueChanged="Slider_ValueChanged"/>
+            <Slider Canvas.Left="44" Canvas.Top="439" Width="291" Value="50" Name="Slider" ValueChanged="Slider_ValueChanged"/>
+            <Ellipse Fill="#FFF4F4F5" Height="232" Canvas.Left="953" Stroke="Black" Canvas.Top="185" Width="232" ManipulationMode="TranslateX,TranslateY" Name="Dial" ManipulationCompleted="Dial_ManipulationCompleted" ManipulationDelta="Ellipse_ManipulationDelta"/>
+            <TextBlock Canvas.Left="1037" TextWrapping="Wrap" Name="VelocitiesLabel" Text="0" Canvas.Top="457" Height="24" Width="115"/>
         </Canvas>
     </Grid>
 </Page>
