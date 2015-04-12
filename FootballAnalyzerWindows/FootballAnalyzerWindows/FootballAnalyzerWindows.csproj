@@ -108,7 +108,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GameFilm.cs" />
+    <Compile Include="Models\GameFilm.cs" />
     <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
@@ -119,6 +119,9 @@
     <Compile Include="OpenFile.xaml.cs">
       <DependentUpon>OpenFile.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameReviewPage.xaml.cs">
+      <DependentUpon>GameReviewPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -126,7 +129,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="FootballAnalyzerWindows_TemporaryKey.pfx" />
-    <Compile Include="Play.cs" />
+    <Compile Include="Models\Play.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Logo.scale-100.png" />
@@ -146,6 +149,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="OpenFile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GameReviewPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
