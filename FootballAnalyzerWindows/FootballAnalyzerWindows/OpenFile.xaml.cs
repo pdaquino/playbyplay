@@ -118,7 +118,7 @@ namespace FootballAnalyzerWindows
             System.Diagnostics.Debug.WriteLine(String.Format("Opening file: " + gameFilmFile.Path));
 
             Frame root = Window.Current.Content as Frame;
-            root.Navigate(typeof(MainPage), new GameFilm);
+            root.Navigate(typeof(MainPage), new GameFilm(gameFilmFile));
         }
     }
 }
