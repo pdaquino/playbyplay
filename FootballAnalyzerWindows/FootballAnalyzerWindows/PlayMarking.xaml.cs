@@ -1,5 +1,4 @@
-﻿using FootballAnalyzer;
-using FootballAnalyzerWindows.Common;
+﻿using FootballAnalyzerWindows.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,8 +6,6 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -24,7 +21,7 @@ namespace FootballAnalyzerWindows
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
-    public sealed partial class OpenFile : Page
+    public sealed partial class PlayMarking : Page
     {
 
         private NavigationHelper navigationHelper;
@@ -48,7 +45,7 @@ namespace FootballAnalyzerWindows
         }
 
 
-        public OpenFile()
+        public PlayMarking()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
@@ -105,20 +102,5 @@ namespace FootballAnalyzerWindows
         }
 
         #endregion
-
-        private async void GameFilmPicker_Click(object sender, RoutedEventArgs e)
-        {
-            FileOpenPicker picker = new FileOpenPicker
-            {
-                ViewMode = PickerViewMode.Thumbnail,
-                SuggestedStartLocation = PickerLocationId.VideosLibrary
-            };
-            picker.FileTypeFilter.Add("*");
-            StorageFile gameFilmFile = await picker.PickSingleFileAsync();
-            System.Diagnostics.Debug.WriteLine(String.Format("Opening file: " + gameFilmFile.Path));
-
-            Frame root = Window.Current.Content as Frame;
-            root.Navigate(typeof(MainPage), new GameFilm);
-        }
     }
 }

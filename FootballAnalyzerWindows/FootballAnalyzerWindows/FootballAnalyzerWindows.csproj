@@ -121,6 +121,8 @@
     </Compile>
     <Compile Include="GameReviewPage.xaml.cs">
       <DependentUpon>GameReviewPage.xaml</DependentUpon>
+    <Compile Include="PlayMarking.xaml.cs">
+      <DependentUpon>PlayMarking.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -152,7 +154,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+<<<<<<< Updated upstream
     <Page Include="GameReviewPage.xaml">
+=======
+    <Page Include="PlayMarking.xaml">
+>>>>>>> Stashed changes
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
