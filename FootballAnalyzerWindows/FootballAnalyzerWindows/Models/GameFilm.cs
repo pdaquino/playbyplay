@@ -4,6 +4,7 @@ using System.Linq;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Threading.Tasks;
+using FootballAnalyzerWindows.Models;
 
 namespace FootballAnalyzer
 {
@@ -38,13 +39,13 @@ namespace FootballAnalyzer
             return m_videoStream;
         }
 
-        public void AddPlay(TimeSpan time)
+        public void AddPlay(TimeSpan time, PlayType type)
         {
             var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
             if (index < 0) 
             {
                 index = ~index;
-                m_plays.Insert(index, new Play(this, time));
+                m_plays.Insert(index, new Play(this, time, type));
             }
             else
             {
@@ -55,13 +56,41 @@ namespace FootballAnalyzer
         public void RemovePlay(TimeSpan time)
         {
             var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
-            if (index > 0)
+            if (index >= 0)
             {
                 m_plays.RemoveAt(index);
             }
             else
             {
                 // No play exists at the specified time
+            }
+        }
+
+        protected Play TryFindPlayAtExactTime(TimeSpan time)
+        {
+            var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
+            if (index >= 0)
+            {
+                return m_plays[index];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public Play TryFindPlay(TimeSpan time)
+        {
+            List<TimeSpan> possiblePlays = m_plays.Select(i => i.TimeInGame).ToList().FindAll(x => x.CompareTo(time) <= 0);
+            if (possiblePlays.Count() > 0)
+            {
+                possiblePlays.Sort();
+                TimeSpan playTimeSpan = possiblePlays.LastOrDefault();
+                return TryFindPlayAtExactTime(playTimeSpan);
+            }
+            else
+            {
+                return null;
             }
         }
     }
