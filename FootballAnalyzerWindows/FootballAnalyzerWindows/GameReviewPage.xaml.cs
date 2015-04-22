@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using FootballAnalyzer;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -23,7 +24,7 @@ namespace FootballAnalyzerWindows
     /// </summary>
     public sealed partial class GameReviewPage : Page
     {
-
+        private GameFilm m_gameFilm;
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
@@ -51,6 +52,7 @@ namespace FootballAnalyzerWindows
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
+            this.VideoPlayer.DefaultPlaybackRate = 0.75;
         }
 
         /// <summary>
@@ -64,8 +66,10 @@ namespace FootballAnalyzerWindows
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session. The state will be null the first time a page is visited.</param>
-        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            m_gameFilm = e.NavigationParameter as GameFilm;            
+            this.VideoPlayer.SetSource(await m_gameFilm.GetVideoStream(), m_gameFilm.VideoFile.ContentType);
         }
 
         /// <summary>
@@ -107,5 +111,85 @@ namespace FootballAnalyzerWindows
         {
 
         }
+
+        private double previousAngle = -1;
+        static Point center = new Point(125, 125);
+        private void Dial_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            if (Math.Sqrt(Math.Pow(e.Position.X - center.X, 2) + Math.Pow(e.Position.Y - center.Y, 2)) < 30)
+            {
+                // If we run get a point to close to the center, ignore it and the previous remembered point
+                previousAngle = -1;
+            }
+            else
+            {
+                var angle = Math.Atan2(center.Y - e.Position.Y, e.Position.X - center.X);     
+                if (angle < 0)
+                {
+                    angle += (2 * Math.PI);
+                }
+
+                if (previousAngle > 0)
+                {
+                    var delta = previousAngle - angle;
+                    
+                    // Account for going around the circle completely
+                    if (delta > Math.PI)
+                    {
+                        delta -= (Math.PI * 2);
+                    }
+                    else if (delta < Math.PI * -1)
+                    {
+                        delta += (Math.PI * 2);
+                    }
+
+                    //
+                    // control video
+                    // normal playback = 10s / 360 degrees
+                    //
+                    double normalRatePeriod = 6000;
+                    double videoDiffInMs = normalRatePeriod * delta / (2 * Math.PI);
+                    VideoPlayer.Position = VideoPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
+                }
+
+                previousAngle = angle;
+            }
+            e.Handled = true;
+        }
+
+        private bool m_playVideoAfterDialManipulation = false;
+        private void Dial_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        {
+            if (this.VideoPlayer.CurrentState == MediaElementState.Playing)
+            {
+                m_playVideoAfterDialManipulation = true;
+                this.VideoPlayer.Pause();
+            }
+            else
+            {
+                m_playVideoAfterDialManipulation = false;
+            }
+        }
+
+        private void Dial_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            if(m_playVideoAfterDialManipulation)
+            {
+                this.VideoPlayer.Play();
+            }
+        }
+
+        private void PlayPause_Pressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (this.VideoPlayer.CurrentState == MediaElementState.Playing)
+            {
+                this.VideoPlayer.Pause();
+            }
+            else if (this.VideoPlayer.CurrentState == MediaElementState.Paused)
+            {
+                this.VideoPlayer.Play();
+            }
+        }
+
     }
 }

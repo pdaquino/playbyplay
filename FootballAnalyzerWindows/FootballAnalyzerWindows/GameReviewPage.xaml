@@ -28,11 +28,20 @@
         </Grid.ChildrenTransitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="55"/>
-            <RowDefinition Height="85*"/>
-            <RowDefinition Height="628*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Back button and page title -->
-        <MediaElement HorizontalAlignment="Left" Height="628" Grid.Row="2" VerticalAlignment="Top" Width="1210"/>
+        <MediaElement Name="VideoPlayer" Stretch="Uniform" AutoPlay="False" HorizontalAlignment="Left" Height="703" Grid.Row="1" VerticalAlignment="Top" Width="1366"/>
+
+        <Ellipse Stroke="#FFF4F4F5" StrokeThickness="10" HorizontalAlignment="Left" Height="150" Margin="50,270,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150"/>
+       
+        <!-- Invisible zone that actually works as the Dial control-->
+        <Ellipse Fill="Transparent" HorizontalAlignment="Left" Height="250" Margin="0,220,0,0" Grid.Row="1" VerticalAlignment="Top" Width="250" ManipulationMode="TranslateX,TranslateY" x:Name="Dial" ManipulationStarted="Dial_ManipulationStarted" ManipulationCompleted="Dial_ManipulationCompleted" ManipulationDelta="Dial_ManipulationDelta"/>
+
+        <!-- Play button -->
+        <Ellipse Fill="#FFF4F4F5" Stroke="#FFF4F4F5" HorizontalAlignment="Left" Height="60" Margin="95,315,0,0" Grid.Row="1" VerticalAlignment="Top" Width="60"/>
+        <Image Source="Assets/playpause.png" HorizontalAlignment="Left" Height="40" Margin="105,325,0,0" Grid.Row="1" VerticalAlignment="Top" Width="40"/>
+        <Ellipse Fill="Transparent" HorizontalAlignment="Left" Height="60" Margin="95,315,0,0" Grid.Row="1" VerticalAlignment="Top" Width="60" PointerPressed="PlayPause_Pressed"/>
     </Grid>
 </Page>
