@@ -1,4 +1,5 @@
-﻿using FootballAnalyzerWindows.Common;
+﻿using FootballAnalyzer;
+using FootballAnalyzerWindows.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,12 +7,15 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
@@ -23,7 +27,7 @@ namespace FootballAnalyzerWindows
     /// </summary>
     public sealed partial class PlayMarking : Page
     {
-
+        private GameFilm m_gameFilm;
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
@@ -64,8 +68,18 @@ namespace FootballAnalyzerWindows
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session. The state will be null the first time a page is visited.</param>
-        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            //GameFilm m_gameFilm = e.NavigationParameter as GameFilm;
+            //if (m_gameFilm == null)
+            //{
+            //    throw new ArgumentException("PlayMarking expects a GameFilm object");
+            //}
+            //GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), "");
+            //GameFilmPlayer.AreTransportControlsEnabled = true;
+            //GameFilmPlayer.Play();
+            StorageFile file = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(@"Videos\Coaches Film_ Terrelle Pryor 93 Yard TD Run.mp4");
+            m_gameFilm = new GameFilm(file);
         }
 
         /// <summary>
@@ -102,5 +116,26 @@ namespace FootballAnalyzerWindows
         }
 
         #endregion
+
+        private void AddPlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            m_gameFilm.AddPlay(GameFilmPlayer.Position);
+            System.Diagnostics.Debug.WriteLine("Marked a new play @ " + GameFilmPlayer.Position);
+        }
+
+        private void FastForwardButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameFilmPlayer.PlaybackRate = 2 * GameFilmPlayer.PlaybackRate;
+        }
+
+        private void RewindButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameFilmPlayer.PlaybackRate = 0.5 * GameFilmPlayer.PlaybackRate;
+        }
+
+        private void Rewind10SecsButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameFilmPlayer.Position = GameFilmPlayer.Position.Subtract(TimeSpan.FromSeconds(7));
+        }
     }
 }
