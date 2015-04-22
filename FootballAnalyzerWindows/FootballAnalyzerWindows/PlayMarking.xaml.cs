@@ -70,16 +70,15 @@ namespace FootballAnalyzerWindows
         /// session. The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            //GameFilm m_gameFilm = e.NavigationParameter as GameFilm;
-            //if (m_gameFilm == null)
-            //{
-            //    throw new ArgumentException("PlayMarking expects a GameFilm object");
-            //}
-            //GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), "");
-            //GameFilmPlayer.AreTransportControlsEnabled = true;
-            //GameFilmPlayer.Play();
-            StorageFile file = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(@"Videos\Coaches Film_ Terrelle Pryor 93 Yard TD Run.mp4");
-            m_gameFilm = new GameFilm(file);
+            m_gameFilm = e.NavigationParameter as GameFilm;
+            if (m_gameFilm == null)
+            {
+                throw new ArgumentException("PlayMarking expects a GameFilm object");
+            }
+            GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), "");
+            GameFilmPlayer.Play();
+            //StorageFile file = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(@"Videos\Coaches Film_ Terrelle Pryor 93 Yard TD Run.mp4");
+            //m_gameFilm = new GameFilm(file);
         }
 
         /// <summary>
