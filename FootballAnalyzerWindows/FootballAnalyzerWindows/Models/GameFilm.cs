@@ -64,5 +64,21 @@ namespace FootballAnalyzer
                 // No play exists at the specified time
             }
         }
+
+        public int GetPlayNumber(TimeSpan time)
+        {
+            int index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
+            if (index < 0)
+            {
+                index = ~index - 1;
+            }
+            return index;
+        }
+
+        public Play GetPlay(TimeSpan time)
+        {
+            int playNumber = this.GetPlayNumber(time);
+            return playNumber < 0 ? null : m_plays[playNumber];
+        }
     }
 }

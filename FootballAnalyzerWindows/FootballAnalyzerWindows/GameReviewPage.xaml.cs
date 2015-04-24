@@ -52,7 +52,7 @@ namespace FootballAnalyzerWindows
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
-            this.VideoPlayer.DefaultPlaybackRate = 0.75;
+            this.GameFilmPlayer.DefaultPlaybackRate = 0.75;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace FootballAnalyzerWindows
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             m_gameFilm = e.NavigationParameter as GameFilm;            
-            this.VideoPlayer.SetSource(await m_gameFilm.GetVideoStream(), m_gameFilm.VideoFile.ContentType);
+            this.GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), m_gameFilm.VideoFile.ContentType);
         }
 
         /// <summary>
@@ -112,26 +112,28 @@ namespace FootballAnalyzerWindows
 
         }
 
-        private double previousAngle = -1;
-        static Point center = new Point(125, 125);
+        private double m_previousAngle = 0;
+        private bool m_havePreviousAngle = false;
+
         private void Dial_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (Math.Sqrt(Math.Pow(e.Position.X - center.X, 2) + Math.Pow(e.Position.Y - center.Y, 2)) < 30)
+
+            if (Math.Sqrt(Math.Pow(e.Position.X - (Dial.ActualWidth / 2), 2) + Math.Pow(e.Position.Y - (Dial.ActualHeight / 2), 2)) < PlayPause.ActualHeight / 2)
             {
                 // If we run get a point to close to the center, ignore it and the previous remembered point
-                previousAngle = -1;
+                m_havePreviousAngle = false;
             }
             else
             {
-                var angle = Math.Atan2(center.Y - e.Position.Y, e.Position.X - center.X);     
+                var angle = Math.Atan2((Dial.ActualHeight / 2) - e.Position.Y, e.Position.X - (Dial.ActualWidth / 2));     
                 if (angle < 0)
                 {
                     angle += (2 * Math.PI);
                 }
 
-                if (previousAngle > 0)
+                if (m_havePreviousAngle)
                 {
-                    var delta = previousAngle - angle;
+                    var delta = m_previousAngle - angle;
                     
                     // Account for going around the circle completely
                     if (delta > Math.PI)
@@ -145,14 +147,14 @@ namespace FootballAnalyzerWindows
 
                     //
                     // control video
-                    // normal playback = 10s / 360 degrees
+                    // normal playback = 5s / 360 degrees
                     //
-                    double normalRatePeriod = 6000;
-                    double videoDiffInMs = normalRatePeriod * delta / (2 * Math.PI);
-                    VideoPlayer.Position = VideoPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
+                    double videoDiffInMs = 5000 * delta / (2 * Math.PI);
+                    GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
                 }
 
-                previousAngle = angle;
+                m_previousAngle = angle;
+                m_havePreviousAngle = true;
             }
             e.Handled = true;
         }
@@ -160,10 +162,10 @@ namespace FootballAnalyzerWindows
         private bool m_playVideoAfterDialManipulation = false;
         private void Dial_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
-            if (this.VideoPlayer.CurrentState == MediaElementState.Playing)
+            if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
             {
                 m_playVideoAfterDialManipulation = true;
-                this.VideoPlayer.Pause();
+                this.GameFilmPlayer.Pause();
             }
             else
             {
@@ -175,19 +177,48 @@ namespace FootballAnalyzerWindows
         {
             if(m_playVideoAfterDialManipulation)
             {
-                this.VideoPlayer.Play();
+                this.GameFilmPlayer.Play();
             }
+            m_havePreviousAngle = false;
         }
 
         private void PlayPause_Pressed(object sender, PointerRoutedEventArgs e)
         {
-            if (this.VideoPlayer.CurrentState == MediaElementState.Playing)
+            if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
             {
-                this.VideoPlayer.Pause();
+                this.GameFilmPlayer.Pause();
             }
-            else if (this.VideoPlayer.CurrentState == MediaElementState.Paused)
+            else if (this.GameFilmPlayer.CurrentState == MediaElementState.Paused)
             {
-                this.VideoPlayer.Play();
+                this.GameFilmPlayer.Play();
+            }
+        }
+
+        private void PreviousPlay_Click(object sender, RoutedEventArgs e)
+        {
+            int currentPlayIndex = m_gameFilm.GetPlayNumber(GameFilmPlayer.Position);
+            if (currentPlayIndex >= 0) 
+            {
+                Play currentPlay = m_gameFilm.Plays[currentPlayIndex];
+                
+                // If we are within 3 seconds of the start of a play go to the previous play, otherwise skip back to the
+                // beginning of this play
+
+                int nextPlayIndex = currentPlayIndex;
+                if (GameFilmPlayer.Position.TotalSeconds - currentPlay.TimeInGame.TotalSeconds < 3)
+                {
+                    nextPlayIndex = Math.Max(0, currentPlayIndex - 1);
+                }
+                this.GameFilmPlayer.Position = m_gameFilm.Plays[nextPlayIndex].TimeInGame;
+            }
+        }
+
+        private void NextPlay_Click(object sender, RoutedEventArgs e)
+        {
+            int currentPlayIndex = m_gameFilm.GetPlayNumber(GameFilmPlayer.Position);
+            if (currentPlayIndex < m_gameFilm.Plays.Count - 1)
+            {
+                this.GameFilmPlayer.Position = m_gameFilm.Plays[currentPlayIndex + 1].TimeInGame;
             }
         }
 
