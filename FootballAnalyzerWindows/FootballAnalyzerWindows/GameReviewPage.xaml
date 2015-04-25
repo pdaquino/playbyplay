@@ -21,39 +21,52 @@
         * Row 1 contains the rest of the page layout
     -->
     <Grid>
-
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="10*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        
+        <MediaElement Grid.ColumnSpan="2" Grid.RowSpan="3" Name="GameFilmPlayer" AutoPlay="False"/>
 
-        <MediaElement Grid.ColumnSpan="2" Grid.RowSpan="2" Name="GameFilmPlayer" AutoPlay="False"/>
+        <Canvas Name="InkCanvas" Background="Transparent" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" PointerMoved="InkCanvasPointerMoved" PointerPressed="InkCanvasPointerPressed"/>
 
-        <Ellipse Stroke="#FFF4F4F5" StrokeThickness="10" Grid.Row="1" Height="200" Width="200"/>
+        <Ellipse Stroke="#FFF4F4F5" StrokeThickness="10" Grid.Row="1" Grid.RowSpan="2" Height="200" Width="200"/>
 
         <!-- Invisible zone that actually works as the Dial control-->
-        <Ellipse Name="Dial" Fill="Transparent" Grid.Row="1" Height="250" Width="250" ManipulationMode="TranslateX,TranslateY" ManipulationStarted="Dial_ManipulationStarted" ManipulationCompleted="Dial_ManipulationCompleted" ManipulationDelta="Dial_ManipulationDelta"/>
+        <Ellipse Name="Dial" Fill="Transparent" Grid.Row="1" Grid.RowSpan="2" Height="250" Width="250" ManipulationMode="TranslateX,TranslateY" ManipulationStarted="Dial_ManipulationStarted" ManipulationCompleted="Dial_ManipulationCompleted" ManipulationDelta="Dial_ManipulationDelta"/>
 
         <!-- Play button -->
-        <Ellipse Fill="#FFF4F4F5" Stroke="#FFF4F4F5" Grid.Row="1" Height="80" Width="80"/>
-        <Image Source="Assets/playpause.png" Grid.Row="1" Height="60" Width="60"/>
-        <Ellipse Name="PlayPause" Fill="Transparent" Grid.Row="1" Height="80" Width="80" PointerPressed="PlayPause_Pressed"/>
+        <Ellipse Fill="#FFF4F4F5" Stroke="#FFF4F4F5" Grid.Row="1" Grid.RowSpan="2" Height="80" Width="80"/>
+        <Image Source="Assets/playpause.png" Grid.Row="1" Grid.RowSpan="2" Height="60" Width="60"/>
+        <Ellipse Name="PlayPause" Fill="Transparent" Grid.Row="1" Grid.RowSpan="2" Height="80" Width="80" PointerPressed="PlayPause_Pressed"/>
 
-        <Grid Name="ControlBar" Background="#800000FF" Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button Name="PreviousPlayButton" HorizontalAlignment="Center" Margin="0,0,120,0" Width="100" Click="PreviousPlay_Click">
+        <StackPanel Name="ControlBar" Orientation="Horizontal" Background="#800000FF" Grid.ColumnSpan="2">
+            <Button Margin="100,0,0,0" Width="100" Click="PreviousPlay_Click">
                 <SymbolIcon Symbol="Back"/>
             </Button>
-            <Button Name="NextPlayButton" HorizontalAlignment="Center" Margin="120,0,0,0" Width="100" Click="NextPlay_Click">
+            <Button Width="100" Click="NextPlay_Click">
                 <SymbolIcon Symbol="Forward"/>
             </Button>
-
-        </Grid>
+            <Button Width="70" Margin="50,0,0,0" Click="SaveDrawing_Click">
+                <SymbolIcon Symbol="Save"/>
+            </Button>
+            <Button Width="70" Click="ClearDrawing_Click">
+                <SymbolIcon Symbol="Clear"/>
+            </Button>
+            <Button Width="70" Margin="50,0,0,0" Click="ToggleThumbnails">
+                <SymbolIcon Symbol="More"/>
+            </Button>
+        </StackPanel>
+        
+        <ScrollViewer Visibility="Collapsed" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="2" Background="White">
+            <Grid HorizontalAlignment="Center">
+                <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

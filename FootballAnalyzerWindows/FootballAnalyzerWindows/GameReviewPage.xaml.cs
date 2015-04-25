@@ -14,6 +14,11 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using FootballAnalyzer;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Input;
+using Windows.Devices.Input;
+using Windows.UI.Xaml.Shapes;
+using Windows.UI;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -53,6 +58,13 @@ namespace FootballAnalyzerWindows
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
             this.GameFilmPlayer.DefaultPlaybackRate = 0.75;
+            this.m_dialCenter = new Point(Dial.ActualWidth / 2, Dial.ActualHeight /2);
+
+            InkCanvas.PointerReleased += (o, e) =>
+            {
+                m_inking = false;
+                e.Handled = true;
+            };
         }
 
         /// <summary>
@@ -66,10 +78,35 @@ namespace FootballAnalyzerWindows
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session. The state will be null the first time a page is visited.</param>
-        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private async void navigationHelper_LoadState(object o, LoadStateEventArgs e)
         {
             m_gameFilm = e.NavigationParameter as GameFilm;            
             this.GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), m_gameFilm.VideoFile.ContentType);
+
+            var bgColor = new SolidColorBrush(Colors.WhiteSmoke);
+
+            foreach(var play in m_gameFilm.Plays)
+            {
+                var button = new Button
+                {
+                    Background = bgColor,
+                    Content = new Image
+                    {
+                        Source = play.Thumbnail,
+                        Height = 100,
+                        Width = 150,
+                    },
+                    Tag = play
+                };
+
+                button.Click += (sender, arg) =>
+                {
+                    var associatedPlay = (sender as Button).Tag as Play;
+                    this.GameFilmPlayer.Position = associatedPlay.TimeInGame;
+                };
+
+                this.PlayThumbnails.Children.Add(button);
+            }
         }
 
         /// <summary>
@@ -114,18 +151,18 @@ namespace FootballAnalyzerWindows
 
         private double m_previousAngle = 0;
         private bool m_havePreviousAngle = false;
-
+        private Point m_dialCenter;
         private void Dial_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-
-            if (Math.Sqrt(Math.Pow(e.Position.X - (Dial.ActualWidth / 2), 2) + Math.Pow(e.Position.Y - (Dial.ActualHeight / 2), 2)) < PlayPause.ActualHeight / 2)
+            
+            if (e.Position.Distance(m_dialCenter) < PlayPause.ActualHeight / 2)
             {
                 // If we run get a point to close to the center, ignore it and the previous remembered point
                 m_havePreviousAngle = false;
             }
             else
             {
-                var angle = Math.Atan2((Dial.ActualHeight / 2) - e.Position.Y, e.Position.X - (Dial.ActualWidth / 2));     
+                var angle = Math.Atan2(m_dialCenter.Y - e.Position.Y, e.Position.X - m_dialCenter.X);     
                 if (angle < 0)
                 {
                     angle += (2 * Math.PI);
@@ -222,5 +259,85 @@ namespace FootballAnalyzerWindows
             }
         }
 
+        Point m_previousContactPoint;
+        bool m_inking;
+        private void InkCanvasPointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            // Get information about the pointer location.
+            PointerPoint pt = e.GetCurrentPoint(InkCanvas);
+            m_previousContactPoint = pt.Position;
+
+            // Accept input only from a pen or mouse with the left button pressed.
+            PointerDeviceType pointerDevType = e.Pointer.PointerDeviceType;
+            if (pointerDevType == PointerDeviceType.Pen ||
+                pointerDevType == PointerDeviceType.Mouse && pt.Properties.IsLeftButtonPressed)
+            {
+                m_inking = true;
+                e.Handled = true;
+            }
+            else if (pointerDevType == PointerDeviceType.Touch)
+            {
+                // Process touch input
+            }
+        }
+
+        private void InkCanvasPointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (m_inking)
+            {
+                PointerPoint pt = e.GetCurrentPoint(InkCanvas);
+
+                if (pt.Position.Distance(m_previousContactPoint) > 1)
+                {
+                    //
+                    // If the delta of the mouse is significant enough,
+                    // we add a line geometry to the Canvas
+                    Line line = new Line()
+                    {
+                        X1 = m_previousContactPoint.X,
+                        Y1 = m_previousContactPoint.Y,
+                        X2 = pt.Position.X,
+                        Y2 = pt.Position.Y,
+                        StrokeThickness = 10,
+                        Stroke = new SolidColorBrush(Colors.Yellow)
+                    };
+
+                    m_previousContactPoint = pt.Position;
+
+                    // Draw the line on the canvas by adding the Line object as
+                    // a child of the Canvas object.
+                    InkCanvas.Children.Add(line);
+                }
+            }            
+        }
+
+        private async void SaveDrawing_Click(object sender, RoutedEventArgs e)
+        {
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
+            await renderTargetBitmap.RenderAsync(InkCanvas, 150, 100);
+
+            var playNumber = m_gameFilm.GetPlayNumber(GameFilmPlayer.Position);
+            if (playNumber >= 0)
+            {
+                m_gameFilm.Plays[playNumber].Thumbnail = renderTargetBitmap;
+                var thumbnail = PlayThumbnails.Children.ToList()[playNumber] as Button;
+
+                if (thumbnail != null)
+                {
+                    var image = thumbnail.Content as Image;
+                    image.Source = renderTargetBitmap;
+                }
+            }
+        }
+
+        private void ClearDrawing_Click(object sender, RoutedEventArgs e)
+        {
+            InkCanvas.Children.Clear();
+        }
+
+        private void ToggleThumbnails(object sender, RoutedEventArgs e)
+        {
+            this.ThumbnailsScrollViewer.Visibility = ThumbnailsScrollViewer.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 }

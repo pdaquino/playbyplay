@@ -1,11 +1,11 @@
 ﻿using System;
+using Windows.UI.Xaml.Media;
 
 namespace FootballAnalyzer
 {
     public class Play
     {
-		// TODO associated drawing to save
-		// TODO thumbnail associated with play
+        public ImageSource Thumbnail { get; set; }
 
         public string Name { get; set; }
 
