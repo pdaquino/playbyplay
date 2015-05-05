@@ -81,21 +81,9 @@ namespace FootballAnalyzerWindows
             m_gameFilm = e.NavigationParameter as GameFilm;            
             this.GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), m_gameFilm.VideoFile.ContentType);
 
-            var bgColor = new SolidColorBrush(Colors.WhiteSmoke);
-
             foreach(var play in m_gameFilm.Plays)
             {
-                var button = new Button
-                {
-                    Background = bgColor,
-                    Content = new Image
-                    {
-                        Source = play.Thumbnail,
-                        Height = 100,
-                        Width = 150,
-                    },
-                    Tag = play
-                };
+                Button button = PlayThumbnailButtonHelper.FromPlay(play);
 
                 button.Click += (sender, arg) =>
                 {
