@@ -110,6 +110,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ExtensionMethods.cs" />
+    <Compile Include="Common\PlayThumbnailButtonFactory.cs" />
     <Compile Include="Models\GameFilm.cs" />
     <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />

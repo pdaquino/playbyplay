@@ -11,6 +11,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -34,6 +35,7 @@ namespace FootballAnalyzerWindows
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
         private PlayType m_currentPlayType;
         DispatcherTimer m_playRefreshTimer = new DispatcherTimer();
+        private SolidColorBrush playThumbnailColor = new SolidColorBrush(Colors.WhiteSmoke);
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
@@ -122,11 +124,23 @@ namespace FootballAnalyzerWindows
                 CurrentPlayInfoText.Text = String.Format(
                     "{0} #{1}",
                     PlayTypeName.FromPlayType(currentPlay.Type),
-                    m_gameFilm.Plays.ToList().FindIndex(p => p.TimeInGame.CompareTo(currentPlay.TimeInGame) == 0));
+                    m_gameFilm.GetPlayNumber(currentPlay));
                 RemoveCurrentPlayButton.IsEnabled = true;
             }
         }
 
+        private void AddThumbnailButton(Play play)
+        {
+            Button button = PlayThumbnailButtonFactory.FromPlay(play);
+
+            button.Click += (sender, arg) =>
+            {
+                var associatedPlay = (sender as Button).Tag as Play;
+                this.GameFilmPlayer.Position = associatedPlay.TimeInGame;
+            };
+
+            this.PlayThumbnails.Children.Add(button);
+        }
 
         /// <summary>
         /// Preserves state associated with this page in case the application is suspended or the
@@ -164,9 +178,11 @@ namespace FootballAnalyzerWindows
         #endregion
         private void AddPlayButton_Click(object sender, RoutedEventArgs e)
         {
-            m_gameFilm.AddPlay(GameFilmPlayer.Position, m_currentPlayType);
-            System.Diagnostics.Debug.WriteLine("Marked a new play @ " + GameFilmPlayer.Position);
+            Play newPlay = m_gameFilm.AddPlay(GameFilmPlayer.Position, m_currentPlayType);
+            System.Diagnostics.Debug.WriteLine("Marked a new play @ " + newPlay.TimeInGame);
+            AddThumbnailButton(newPlay);
             RefreshCurrentPlayInfo(GetCurrentPlay());
+
         }
 
         private void FastForwardButton_Click(object sender, RoutedEventArgs e)
@@ -208,10 +224,15 @@ namespace FootballAnalyzerWindows
         private void RemoveCurrentPlayButton_Click(object sender, RoutedEventArgs e)
         {
             Play currentPlay = m_gameFilm.GetPlay(GameFilmPlayer.Position);
-            if(currentPlay == null)
+            if(currentPlay != null)
+            {
+                m_gameFilm.RemovePlay(currentPlay);
+            }
+            else
             {
                 System.Diagnostics.Debug.Assert(currentPlay != null);
             }
+            
         }
 
         private void GoToFilmReview_Click(object sender, RoutedEventArgs e)

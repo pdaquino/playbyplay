@@ -39,18 +39,26 @@ namespace FootballAnalyzer
             return m_videoStream;
         }
 
-        public void AddPlay(TimeSpan time, PlayType type)
+        public Play AddPlay(TimeSpan time, PlayType type)
         {
             var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
             if (index < 0) 
             {
                 index = ~index;
-                m_plays.Insert(index, new Play(this, time, type));
+                Play play = new Play(this, time, type);
+                m_plays.Insert(index, play);
+                return play;
             }
             else
             {
                 //play already exists at this point
+                return null;
             }
+        }
+
+        public void RemovePlay(Play play)
+        {
+            RemovePlay(play.TimeInGame);
         }
 
         public void RemovePlay(TimeSpan time)
@@ -65,6 +73,12 @@ namespace FootballAnalyzer
                 // No play exists at the specified time
             }
         }
+
+        public int GetPlayNumber(Play play)
+        {
+            return GetPlayNumber(play.TimeInGame);
+        }
+
         public int GetPlayNumber(TimeSpan time)
         {
             int index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);

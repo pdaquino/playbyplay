@@ -37,11 +37,14 @@
         <MediaElement Grid.ColumnSpan="2" Grid.RowSpan="2" SeekCompleted="GameFilmPlayer_SeekCompleted" HorizontalAlignment="Left" AreTransportControlsEnabled="True" Name="GameFilmPlayer" VerticalAlignment="Top" Source="Videos/Coaches Film_ Terrelle Pryor 93 Yard TD Run.mp4" Margin="0,1,0,0"/>
         
         <Grid Grid.Row="0" Grid.Column="0" Background="#30FFFFFF">
-            
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="1">
+                <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
+            </ScrollViewer>
         </Grid>
+        
         <Grid Grid.Column="1" Grid.RowSpan="2" Background="#30FFFFFF">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="4*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
@@ -89,7 +92,5 @@
                 Film review
             </Button>
         </Grid>
-        <!--<Rectangle Grid.Column="2" Fill="Blue" Opacity=".4" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Width="300" Height="200" />-->
     </Grid>
 </Page>
