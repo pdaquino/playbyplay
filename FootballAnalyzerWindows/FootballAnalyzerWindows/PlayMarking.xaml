@@ -81,11 +81,11 @@
                 <TextBlock Grid.Column="0" Name="CurrentPlayInfoText" TextWrapping="WrapWholeWords" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20">
                     No current play
                 </TextBlock>
-                <Button Grid.Column="1" Name="RemoveCurrentPlayButton" IsEnabled="False">
+                <Button Grid.Column="1" Name="RemoveCurrentPlayButton" IsEnabled="False" Click="RemoveCurrentPlayButton_Click">
                     <SymbolIcon Symbol="Remove"/>
                 </Button>
             </Grid>
-            <Button Grid.Row="3" Name="GoToFilmReview" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Grid.Row="3" Name="GoToFilmReview" HorizontalAlignment="Center" VerticalAlignment="Center" Click="GoToFilmReview_Click">
                 Film review
             </Button>
         </Grid>

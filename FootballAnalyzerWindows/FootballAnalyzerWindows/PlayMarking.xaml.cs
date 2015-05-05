@@ -92,7 +92,21 @@ namespace FootballAnalyzerWindows
 
         void m_playRefreshTimer_Tick(object sender, object e)
         {
-            RefreshCurrentPlayInfo();
+            Play currentPlay = GetCurrentPlay();
+            RefreshCurrentPlayInfo(currentPlay);
+            RefreshRemoveButtonState(currentPlay);
+            
+        }
+
+        private Play GetCurrentPlay()
+        {
+            Play currentPlay = m_gameFilm.GetPlay(GameFilmPlayer.Position);
+            return currentPlay;
+        }
+
+        private void RefreshRemoveButtonState(Play currentPlay)
+        {
+            RemoveCurrentPlayButton.IsEnabled = (currentPlay != null);
         }
 
         private void RefreshPlayTypeButton()
@@ -100,9 +114,9 @@ namespace FootballAnalyzerWindows
             PlayTypeButton.Content = PlayTypeName.FromPlayType(m_currentPlayType);
         }
 
-        private void RefreshCurrentPlayInfo()
+        private void RefreshCurrentPlayInfo(Play currentPlay)
         {
-            Play currentPlay = m_gameFilm.GetPlay(GameFilmPlayer.Position);
+            
             if(currentPlay != null)
             {
                 CurrentPlayInfoText.Text = String.Format(
@@ -152,7 +166,7 @@ namespace FootballAnalyzerWindows
         {
             m_gameFilm.AddPlay(GameFilmPlayer.Position, m_currentPlayType);
             System.Diagnostics.Debug.WriteLine("Marked a new play @ " + GameFilmPlayer.Position);
-            RefreshCurrentPlayInfo();
+            RefreshCurrentPlayInfo(GetCurrentPlay());
         }
 
         private void FastForwardButton_Click(object sender, RoutedEventArgs e)
@@ -189,6 +203,21 @@ namespace FootballAnalyzerWindows
         private void GameFilmPlayer_SeekCompleted(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Seek completed");
+        }
+
+        private void RemoveCurrentPlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            Play currentPlay = m_gameFilm.GetPlay(GameFilmPlayer.Position);
+            if(currentPlay == null)
+            {
+                System.Diagnostics.Debug.Assert(currentPlay != null);
+            }
+        }
+
+        private void GoToFilmReview_Click(object sender, RoutedEventArgs e)
+        {
+            Frame root = Window.Current.Content as Frame;
+            root.Navigate(typeof(GameReviewPage), m_gameFilm);
         }
     }
 }

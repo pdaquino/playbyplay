@@ -187,7 +187,7 @@ namespace FootballAnalyzerWindows
                     // normal playback = 5s / 360 degrees
                     //
                     m_accumulatedTimeDelta += (5000 * delta / (2 * Math.PI));
-                    if (Math.Abs(m_accumulatedTimeDelta) > 100)
+                    if (Math.Abs(m_accumulatedTimeDelta) > 25)
                     {
                         GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(m_accumulatedTimeDelta));
                         m_accumulatedTimeDelta = 0;
