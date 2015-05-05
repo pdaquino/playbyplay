@@ -22,17 +22,5 @@ namespace UnitTests
 
             Assert.AreEqual(1, film.GetPlay(TimeSpan.FromSeconds(2)).TimeInGame.Seconds);
         }
-
-        [TestMethod]
-        public void TestFindPlayByTime2()
-        {
-            GameFilm film = new GameFilm(null);
-            film.AddPlay(TimeSpan.FromSeconds(1), FootballAnalyzerWindows.Models.PlayType.Offense);
-            film.AddPlay(TimeSpan.FromSeconds(3), FootballAnalyzerWindows.Models.PlayType.Offense);
-
-            Assert.AreEqual(1, film.TryFindPlay(TimeSpan.FromSeconds(2)).TimeInGame.Seconds);
-        }
-
-
     }
 }
