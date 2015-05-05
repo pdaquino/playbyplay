@@ -4,6 +4,7 @@ using System.Linq;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Threading.Tasks;
+using FootballAnalyzerWindows.Models;
 
 namespace FootballAnalyzer
 {
@@ -38,13 +39,13 @@ namespace FootballAnalyzer
             return m_videoStream;
         }
 
-        public void AddPlay(TimeSpan time)
+        public void AddPlay(TimeSpan time, PlayType type)
         {
             var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
             if (index < 0) 
             {
                 index = ~index;
-                m_plays.Insert(index, new Play(this, time));
+                m_plays.Insert(index, new Play(this, time, type));
             }
             else
             {
@@ -55,7 +56,7 @@ namespace FootballAnalyzer
         public void RemovePlay(TimeSpan time)
         {
             var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
-            if (index > 0)
+            if (index >= 0)
             {
                 m_plays.RemoveAt(index);
             }
@@ -64,7 +65,6 @@ namespace FootballAnalyzer
                 // No play exists at the specified time
             }
         }
-
         public int GetPlayNumber(TimeSpan time)
         {
             int index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);

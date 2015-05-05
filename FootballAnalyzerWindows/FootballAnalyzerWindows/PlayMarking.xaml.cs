@@ -1,7 +1,9 @@
 ﻿using FootballAnalyzer;
 using FootballAnalyzerWindows.Common;
+using FootballAnalyzerWindows.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -30,7 +32,8 @@ namespace FootballAnalyzerWindows
         private GameFilm m_gameFilm;
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
-
+        private PlayType m_currentPlayType;
+        DispatcherTimer m_playRefreshTimer = new DispatcherTimer();
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
@@ -77,9 +80,39 @@ namespace FootballAnalyzerWindows
             }
             GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), "");
             GameFilmPlayer.Play();
+            m_currentPlayType = PlayType.Offense;
+            RefreshPlayTypeButton();
+
+            m_playRefreshTimer.Interval = TimeSpan.FromMilliseconds(250);
+            m_playRefreshTimer.Tick += m_playRefreshTimer_Tick;
+            m_playRefreshTimer.Start();
             //StorageFile file = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(@"Videos\Coaches Film_ Terrelle Pryor 93 Yard TD Run.mp4");
             //m_gameFilm = new GameFilm(file);
         }
+
+        void m_playRefreshTimer_Tick(object sender, object e)
+        {
+            RefreshCurrentPlayInfo();
+        }
+
+        private void RefreshPlayTypeButton()
+        {
+            PlayTypeButton.Content = PlayTypeName.FromPlayType(m_currentPlayType);
+        }
+
+        private void RefreshCurrentPlayInfo()
+        {
+            Play currentPlay = m_gameFilm.GetPlay(GameFilmPlayer.Position);
+            if(currentPlay != null)
+            {
+                CurrentPlayInfoText.Text = String.Format(
+                    "{0} #{1}",
+                    PlayTypeName.FromPlayType(currentPlay.Type),
+                    m_gameFilm.Plays.ToList().FindIndex(p => p.TimeInGame.CompareTo(currentPlay.TimeInGame) == 0));
+                RemoveCurrentPlayButton.IsEnabled = true;
+            }
+        }
+
 
         /// <summary>
         /// Preserves state associated with this page in case the application is suspended or the
@@ -115,11 +148,11 @@ namespace FootballAnalyzerWindows
         }
 
         #endregion
-
         private void AddPlayButton_Click(object sender, RoutedEventArgs e)
         {
-            m_gameFilm.AddPlay(GameFilmPlayer.Position);
+            m_gameFilm.AddPlay(GameFilmPlayer.Position, m_currentPlayType);
             System.Diagnostics.Debug.WriteLine("Marked a new play @ " + GameFilmPlayer.Position);
+            RefreshCurrentPlayInfo();
         }
 
         private void FastForwardButton_Click(object sender, RoutedEventArgs e)
@@ -135,6 +168,27 @@ namespace FootballAnalyzerWindows
         private void Rewind10SecsButton_Click(object sender, RoutedEventArgs e)
         {
             GameFilmPlayer.Position = GameFilmPlayer.Position.Subtract(TimeSpan.FromSeconds(7));
+        }
+
+        private void PlayTypeButton_Click(object sender, RoutedEventArgs e)
+        {
+            switch (m_currentPlayType)
+            {
+                case PlayType.Offense:
+                    m_currentPlayType = PlayType.Defense;
+                    break;
+                case PlayType.Defense:
+                    m_currentPlayType = PlayType.Offense;
+                    break;
+                default:
+                    throw new Exception("Invalid play type");
+            }
+            RefreshPlayTypeButton();
+        }
+
+        private void GameFilmPlayer_SeekCompleted(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Seek completed");
         }
     }
 }
