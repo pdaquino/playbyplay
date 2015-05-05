@@ -97,7 +97,6 @@ namespace FootballAnalyzerWindows
             Play currentPlay = GetCurrentPlay();
             RefreshCurrentPlayInfo(currentPlay);
             RefreshRemoveButtonState(currentPlay);
-            
         }
 
         private Play GetCurrentPlay()
@@ -127,11 +126,15 @@ namespace FootballAnalyzerWindows
                     m_gameFilm.GetPlayNumber(currentPlay));
                 RemoveCurrentPlayButton.IsEnabled = true;
             }
+            else
+            {
+                CurrentPlayInfoText.Text = "No current play";
+            }
         }
 
         private void AddThumbnailButton(Play play)
         {
-            Button button = PlayThumbnailButtonFactory.FromPlay(play);
+            Button button = PlayThumbnailButtonHelper.FromPlay(play);
 
             button.Click += (sender, arg) =>
             {
@@ -140,6 +143,27 @@ namespace FootballAnalyzerWindows
             };
 
             this.PlayThumbnails.Children.Add(button);
+
+            RefreshThumbnailButtons();
+        }
+        private void RefreshThumbnailButtons()
+        {
+            System.Diagnostics.Debug.Assert(PlayThumbnails.Children.Count == m_gameFilm.Plays.Count);
+            for(int i = 0; i < PlayThumbnails.Children.Count; i++)
+            {
+                PlayThumbnailButtonHelper.AssociateButtonToPlay(
+                    (Button)PlayThumbnails.Children[i],
+                    m_gameFilm.Plays[i]);
+            }
+        }
+        private void RemoveThumbnailButton(Play play)
+        {
+            // We are going to refresh every single button after removing this one,
+            // so it doesn't matter which one we remove.
+            this.PlayThumbnails.Children.RemoveAt(0);
+
+            // The play numbers may have changed -- refresh them.
+            RefreshThumbnailButtons();
         }
 
         /// <summary>
@@ -232,7 +256,7 @@ namespace FootballAnalyzerWindows
             {
                 System.Diagnostics.Debug.Assert(currentPlay != null);
             }
-            
+            RemoveThumbnailButton(currentPlay);
         }
 
         private void GoToFilmReview_Click(object sender, RoutedEventArgs e)

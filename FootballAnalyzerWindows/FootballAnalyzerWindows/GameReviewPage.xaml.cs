@@ -84,7 +84,7 @@ namespace FootballAnalyzerWindows
 
             foreach(var play in m_gameFilm.Plays)
             {
-                Button button = PlayThumbnailButtonFactory.FromPlay(play);
+                Button button = PlayThumbnailButtonHelper.FromPlay(play);
 
                 button.Click += (sender, arg) =>
                 {
