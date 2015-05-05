@@ -55,7 +55,7 @@
             </Button>
         </StackPanel>
 
-        <ScrollViewer Visibility="Collapsed" Background="#30000000" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="2">
+        <ScrollViewer Visibility="Collapsed" Background="#30000000" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="3">
             <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
         </ScrollViewer>
 
@@ -64,6 +64,7 @@
                 <RowDefinition Height="3*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="0.5*" />
             </Grid.RowDefinitions>
             <StackPanel Name="AddPlayPanel" Orientation="Vertical" VerticalAlignment="Center">
                 <Button Name="AddPlayButton" HorizontalAlignment="Center" VerticalAlignment="Center" Height="81" Width="106" Click="AddPlayButton_Click">
@@ -88,6 +89,10 @@
             <Button Grid.Row="2" Name="GoToFilmReview" HorizontalAlignment="Center" VerticalAlignment="Center" Click="GoToFilmReview_Click">
                 Film review
             </Button>
+            <StackPanel Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button Name="ExportButton" Click="ExportButton_Click">Export</Button>
+                <Button Name="ImportButton" Click="ImportButton_Click">Import</Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>

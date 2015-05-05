@@ -2,7 +2,18 @@
 using FootballAnalyzerWindows.Common;
 using FootballAnalyzerWindows.Models;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -84,6 +95,24 @@ namespace FootballAnalyzerWindows
             Play currentPlay = GetCurrentPlay();
             RefreshCurrentPlayInfo(currentPlay);
             RefreshRemoveButtonState(currentPlay);
+        }
+
+
+        private void LoadGameFilm(GameFilm importedFilm)
+        {
+            PlayThumbnails.Children.Clear();
+            
+            m_gameFilm = importedFilm;
+
+            Play currentPlay = GetCurrentPlay();
+            RefreshPlayTypeButton();
+            RefreshRemoveButtonState(currentPlay);
+            RefreshCurrentPlayInfo(currentPlay);
+
+            foreach(Play play in m_gameFilm.Plays)
+            {
+                AddThumbnailButton(play);
+            }
         }
 
         private Play GetCurrentPlay()
@@ -277,6 +306,32 @@ namespace FootballAnalyzerWindows
         private void DialTimeDelta(object sender, double timeDelta)
         {
             GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(timeDelta));
+        }
+
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveManager saveMgr = new SaveManager();
+            saveMgr.SaveFileThroughPicker(m_gameFilm);
+        }
+
+        private async void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageDialog md = new MessageDialog("Importing a file will cause all of your unexported changes to be lost. Do you want to continue?", "Unexported changes will be lost");
+            bool import = false;
+            md.Commands.Add(
+                new UICommand("Import", new UICommandInvokedHandler((cmd) => import = true)));
+            md.Commands.Add(
+                new UICommand("Cancel", new UICommandInvokedHandler((cmd) => import = false)));
+ 
+            await md.ShowAsync();
+            if (import) {
+                SaveManager saveMgr = new SaveManager();
+                GameFilm importedFilm = await saveMgr.LoadSaveFileThroughPicker();
+                // The video file doesn't get serialized. The user is importing plays
+                // for the current video.
+                importedFilm.VideoFile = m_gameFilm.VideoFile;
+                LoadGameFilm(importedFilm);
+            }
         }
     }
 }

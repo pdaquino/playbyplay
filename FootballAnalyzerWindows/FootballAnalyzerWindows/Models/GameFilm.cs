@@ -5,48 +5,44 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Threading.Tasks;
 using FootballAnalyzerWindows.Models;
+using System.Xml.Serialization;
+using System.Runtime.Serialization;
 
 namespace FootballAnalyzer
 {
     public class GameFilm
     {
+        [System.Xml.Serialization.XmlIgnoreAttribute]
         private IRandomAccessStream m_videoStream;
 
-        private List<Play> m_plays;
-        public IList<Play> Plays 
-        {
-            get { return m_plays; }
-        }
+        public List<Play> Plays { get; set; }
 
-        private StorageFile m_videoFile;
-        public StorageFile VideoFile
-        {
-            get { return m_videoFile; }
-        }
+        [System.Xml.Serialization.XmlIgnoreAttribute]
+        public StorageFile VideoFile { get; set; }
         
         public GameFilm(StorageFile videoFile)
         {
-            m_videoFile = videoFile;
-            m_plays = new List<Play>();
+            VideoFile = videoFile;
+            Plays = new List<Play>();
         }
 
         public async Task<IRandomAccessStream> GetVideoStream()
         {
             if (m_videoStream == null)
             {
-                m_videoStream = await m_videoFile.OpenAsync(FileAccessMode.Read);
+                m_videoStream = await VideoFile.OpenAsync(FileAccessMode.Read);
             }
             return m_videoStream;
         }
 
         public Play AddPlay(TimeSpan time, PlayType type)
         {
-            var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
+            var index = Plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
             if (index < 0) 
             {
                 index = ~index;
                 Play play = new Play(this, time, type);
-                m_plays.Insert(index, play);
+                Plays.Insert(index, play);
                 return play;
             }
             else
@@ -63,10 +59,10 @@ namespace FootballAnalyzer
 
         public void RemovePlay(TimeSpan time)
         {
-            var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
+            var index = Plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
             if (index >= 0)
             {
-                m_plays.RemoveAt(index);
+                Plays.RemoveAt(index);
             }
             else
             {
@@ -81,7 +77,7 @@ namespace FootballAnalyzer
 
         public int GetPlayNumber(TimeSpan time)
         {
-            int index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
+            int index = Plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
             if (index < 0)
             {
                 index = ~index - 1;
@@ -92,7 +88,12 @@ namespace FootballAnalyzer
         public Play GetPlay(TimeSpan time)
         {
             int playNumber = this.GetPlayNumber(time);
-            return playNumber < 0 ? null : m_plays[playNumber];
+            return playNumber < 0 ? null : Plays[playNumber];
+        }
+
+        private GameFilm()
+        {
+
         }
     }
 }

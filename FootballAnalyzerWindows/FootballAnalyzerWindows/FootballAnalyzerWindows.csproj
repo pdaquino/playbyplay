@@ -112,6 +112,7 @@
     <Compile Include="Common\DialControl.cs" />
     <Compile Include="Common\ExtensionMethods.cs" />
     <Compile Include="Common\PlayThumbnailButtonHelper.cs" />
+    <Compile Include="Common\SaveManager.cs" />
     <Compile Include="Models\GameFilm.cs" />
     <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
