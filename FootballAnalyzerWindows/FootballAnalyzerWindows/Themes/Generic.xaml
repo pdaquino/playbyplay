@@ -13,9 +13,9 @@
                         BorderThickness="{TemplateBinding BorderThickness}">
                         <!-- Invisible zone that actually works as the Dial control-->
                         <Grid Name="DialGrid">
-                            <Ellipse Name="DialCircle" Stroke="White"/>
+                            <Ellipse Name="DialCircle" Stroke="#90FFFFFF"/>
                             <Ellipse Name="Dial" Fill="Transparent" ManipulationMode="TranslateX,TranslateY"/>
-                            <Ellipse Name="PlayPauseCircle" Fill="White" Stroke="White"/>
+                            <Ellipse Name="PlayPauseCircle" Fill="#90FFFFFF" Stroke="#90FFFFFF"/>
                             <Image Name="PlayPauseImage" Source="Assets/playpause.png"/>
                             <Ellipse Name="PlayPause" Fill="Transparent"/>
                         </Grid>

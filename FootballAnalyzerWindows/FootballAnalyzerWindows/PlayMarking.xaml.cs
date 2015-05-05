@@ -2,23 +2,10 @@
 using FootballAnalyzerWindows.Common;
 using FootballAnalyzerWindows.Models;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
@@ -263,6 +250,33 @@ namespace FootballAnalyzerWindows
         {
             Frame root = Window.Current.Content as Frame;
             root.Navigate(typeof(GameReviewPage), m_gameFilm);
+        }
+
+        private void ToggleThumbnails(object sender, RoutedEventArgs e)
+        {
+            this.ThumbnailsScrollViewer.Visibility = ThumbnailsScrollViewer.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void PlayPausePressed(object sender, EventArgs e)
+        {
+            if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
+            {
+                this.GameFilmPlayer.Pause();
+            }
+            else if (this.GameFilmPlayer.CurrentState == MediaElementState.Paused)
+            {
+                this.GameFilmPlayer.Play();
+            }
+        }
+
+        private void DialManipulationStarted(object sender, EventArgs e)
+        {
+            this.GameFilmPlayer.Pause();
+        }
+
+        private void DialTimeDelta(object sender, double timeDelta)
+        {
+            GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(timeDelta));
         }
     }
 }

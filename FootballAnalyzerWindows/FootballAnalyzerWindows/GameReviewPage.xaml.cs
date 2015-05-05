@@ -1,24 +1,18 @@
-﻿using FootballAnalyzerWindows.Common;
+﻿using FootballAnalyzer;
+using FootballAnalyzerWindows.Common;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Devices.Input;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.UI;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using FootballAnalyzer;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Input;
-using Windows.Devices.Input;
+using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
-using Windows.UI;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -142,10 +136,7 @@ namespace FootballAnalyzerWindows
 
         private void DialManipulationStarted(object sender, EventArgs e)
         {
-            if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
-            {
-                this.GameFilmPlayer.Pause();
-            }
+            this.GameFilmPlayer.Pause();   
         }
 
         private void PlayPausePressed(object sender, EventArgs e)

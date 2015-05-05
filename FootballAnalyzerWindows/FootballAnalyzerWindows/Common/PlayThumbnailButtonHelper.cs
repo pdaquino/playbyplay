@@ -46,7 +46,7 @@ namespace FootballAnalyzerWindows.Common
             playName.SetValue(Grid.RowProperty, 1);
             playName.SetValue(Grid.HorizontalAlignmentProperty, HorizontalAlignment.Center);
             playName.SetValue(Grid.VerticalAlignmentProperty, VerticalAlignment.Center);
-            playName.Name = "playName";
+            //playName.Name = "playName";
 
             // We need the border to apply the background color
             Border textBorder = new Border
@@ -65,7 +65,7 @@ namespace FootballAnalyzerWindows.Common
                 Source = play.Thumbnail,
                 Height = m_height,
                 Width = m_width,
-                Name = "playThumbnail"
+                //Name = "playThumbnail"
             };
             Grid.SetRowSpan(thumbnail, 2);
             buttonGrid.Children.Add(thumbnail);

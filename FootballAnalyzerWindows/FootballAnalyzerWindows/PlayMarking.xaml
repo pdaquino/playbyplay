@@ -21,54 +21,51 @@
         * Row 1 contains the rest of the page layout
     -->
     <Grid>
-        <Grid.ChildrenTransitions>
+        <!--<Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
             </TransitionCollection>
-        </Grid.ChildrenTransitions>
+        </Grid.ChildrenTransitions>-->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition  Width="*"/>
-            <ColumnDefinition Width=".2*"></ColumnDefinition>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width=".2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height=".2*" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <MediaElement Grid.ColumnSpan="2" Grid.RowSpan="2" SeekCompleted="GameFilmPlayer_SeekCompleted" HorizontalAlignment="Left" AreTransportControlsEnabled="True" Name="GameFilmPlayer" VerticalAlignment="Top" Source="Videos/Coaches Film_ Terrelle Pryor 93 Yard TD Run.mp4" Margin="0,1,0,0"/>
+        <MediaElement Grid.ColumnSpan="3" Grid.RowSpan="3" SeekCompleted="GameFilmPlayer_SeekCompleted" HorizontalAlignment="Left" AreTransportControlsEnabled="True" Name="GameFilmPlayer" VerticalAlignment="Top"/>
+
+        <common:DialControl Height="300" Width="300" Grid.Row="1" Grid.RowSpan="2" PlayPausePressed="PlayPausePressed" DialManipulationStarted="DialManipulationStarted" DialTimeDelta="DialTimeDelta"/>
         
-        <Grid Grid.Row="0" Grid.Column="0" Background="#30FFFFFF">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="1">
-                <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
-            </ScrollViewer>
-        </Grid>
-        
-        <Grid Grid.Column="1" Grid.RowSpan="2" Background="#30FFFFFF">
+        <StackPanel Name="ControlBar" Orientation="Horizontal" Background="#30000000" Grid.RowSpan="1" Grid.ColumnSpan="3">
+            <Button Name="RewindButton" Click="RewindButton_Click" Margin="100,0,0,0" Width="100" VerticalAlignment="Stretch" FontFamily="Segoe UI Symbol">
+                &#xE00E;&#xE00E;
+            </Button>
+            <Button Name="FastForwardButton" Click="FastForwardButton_Click" Width="100" VerticalAlignment="Stretch" FontFamily="Segoe UI Symbol">
+                &#xE00F;&#xE00F;
+            </Button>
+            <Button Name="Rewind10SecsButton" Click="Rewind10SecsButton_Click" Margin="50,0,0,0" Width="70">
+                <SymbolIcon Symbol="Rotate" />
+            </Button>
+            <Button Width="70" Margin="50,0,0,0" Click="ToggleThumbnails">
+                <SymbolIcon Symbol="More"/>
+            </Button>
+        </StackPanel>
+
+        <ScrollViewer Visibility="Collapsed" Background="#30000000" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="2">
+            <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
+        </ScrollViewer>
+
+        <Grid Grid.Column="2" Grid.Row="2" Background="#30000000">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="4*" />
+                <RowDefinition Height="3*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Name="RewindButton" Click="RewindButton_Click"  FontFamily="Segoe UI Symbol">
-                    &#xE00E;&#xE00E;
-                </Button>
-                    <Button Name="FastForwardButton" Click="FastForwardButton_Click" FontFamily="Segoe UI Symbol">
-                        &#xE00F;&#xE00F;
-                    </Button>
-                </StackPanel>
-                <StackPanel Grid.Row="1" FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Name="Rewind10SecsButton" Click="Rewind10SecsButton_Click">
-                        <SymbolIcon Symbol="Rotate" />
-                    </Button>
-                </StackPanel>
-            </Grid>
-            <StackPanel Name="AddPlayPanel" Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center">
+            <StackPanel Name="AddPlayPanel" Orientation="Vertical" VerticalAlignment="Center">
                 <Button Name="AddPlayButton" HorizontalAlignment="Center" VerticalAlignment="Center" Height="81" Width="106" Click="AddPlayButton_Click">
                     <SymbolIcon Symbol="Add" />
                 </Button>
@@ -76,7 +73,7 @@
                     Offense
                 </Button>
             </StackPanel>
-            <Grid Grid.Row="2" Name="PlayInfoGrid">
+            <Grid Grid.Row="1" Name="PlayInfoGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>
@@ -88,7 +85,7 @@
                     <SymbolIcon Symbol="Remove"/>
                 </Button>
             </Grid>
-            <Button Grid.Row="3" Name="GoToFilmReview" HorizontalAlignment="Center" VerticalAlignment="Center" Click="GoToFilmReview_Click">
+            <Button Grid.Row="2" Name="GoToFilmReview" HorizontalAlignment="Center" VerticalAlignment="Center" Click="GoToFilmReview_Click">
                 Film review
             </Button>
         </Grid>

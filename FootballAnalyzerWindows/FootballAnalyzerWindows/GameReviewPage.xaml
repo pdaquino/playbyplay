@@ -37,7 +37,7 @@
         
         <common:DialControl Height="300" Width="300" Grid.Row="1" Grid.RowSpan="2" PlayPausePressed="PlayPausePressed" DialManipulationStarted="DialManipulationStarted" DialTimeDelta="DialTimeDelta"/>
 
-        <StackPanel Name="ControlBar" Orientation="Horizontal" Background="#800000FF" Grid.ColumnSpan="2">
+        <StackPanel Name="ControlBar" Orientation="Horizontal" Background="#30000000" Grid.ColumnSpan="2">
             <Button Margin="100,0,0,0" Width="100" Click="PreviousPlay_Click">
                 <SymbolIcon Symbol="Back"/>
             </Button>
@@ -54,11 +54,9 @@
                 <SymbolIcon Symbol="More"/>
             </Button>
         </StackPanel>
-        
-        <ScrollViewer Visibility="Collapsed" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="2" Background="White">
-            <Grid HorizontalAlignment="Center">
-                <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
-            </Grid>
+
+        <ScrollViewer Visibility="Collapsed" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Name="ThumbnailsScrollViewer" Grid.Row="1" Grid.ColumnSpan="2" Background="#30000000">
+            <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
         </ScrollViewer>
     </Grid>
 </Page>
