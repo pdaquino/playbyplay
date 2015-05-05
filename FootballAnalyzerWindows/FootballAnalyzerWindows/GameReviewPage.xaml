@@ -34,16 +34,8 @@
         <MediaElement Grid.ColumnSpan="2" Grid.RowSpan="3" Name="GameFilmPlayer" AutoPlay="False"/>
 
         <Canvas Name="InkCanvas" Background="Transparent" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" PointerMoved="InkCanvasPointerMoved" PointerPressed="InkCanvasPointerPressed"/>
-
-        <Ellipse Stroke="#FFF4F4F5" StrokeThickness="10" Grid.Row="1" Grid.RowSpan="2" Height="200" Width="200"/>
-
-        <!-- Invisible zone that actually works as the Dial control-->
-        <Ellipse Name="Dial" Fill="Transparent" Grid.Row="1" Grid.RowSpan="2" Height="250" Width="250" ManipulationMode="TranslateX,TranslateY" ManipulationStarted="Dial_ManipulationStarted" ManipulationCompleted="Dial_ManipulationCompleted" ManipulationDelta="Dial_ManipulationDelta"/>
-
-        <!-- Play button -->
-        <Ellipse Fill="#FFF4F4F5" Stroke="#FFF4F4F5" Grid.Row="1" Grid.RowSpan="2" Height="80" Width="80"/>
-        <Image Source="Assets/playpause.png" Grid.Row="1" Grid.RowSpan="2" Height="60" Width="60"/>
-        <Ellipse Name="PlayPause" Fill="Transparent" Grid.Row="1" Grid.RowSpan="2" Height="80" Width="80" PointerPressed="PlayPause_Pressed"/>
+        
+        <common:DialControl Height="300" Width="300" Grid.Row="1" Grid.RowSpan="2" PlayPausePressed="PlayPausePressed" DialManipulationStarted="DialManipulationStarted" DialTimeDelta="DialTimeDelta"/>
 
         <StackPanel Name="ControlBar" Orientation="Horizontal" Background="#800000FF" Grid.ColumnSpan="2">
             <Button Margin="100,0,0,0" Width="100" Click="PreviousPlay_Click">

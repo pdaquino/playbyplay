@@ -57,7 +57,6 @@ namespace FootballAnalyzerWindows
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
-            this.m_dialCenter = new Point(Dial.ActualWidth / 2, Dial.ActualHeight /2);
 
             InkCanvas.PointerReleased += (o, e) =>
             {
@@ -148,59 +147,12 @@ namespace FootballAnalyzerWindows
 
         }
 
-        private double m_previousAngle = 0;
-        private bool m_havePreviousAngle = false;
-        private double m_accumulatedTimeDelta;
-        private Point m_dialCenter;
-        private void Dial_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        private void DialTimeDelta(object sender, double timeDelta)
         {
-            
-            if (e.Position.Distance(m_dialCenter) < PlayPause.ActualHeight / 2)
-            {
-                // If we run get a point to close to the center, ignore it and the previous remembered point
-                m_havePreviousAngle = false;
-            }
-            else
-            {
-                var angle = Math.Atan2(m_dialCenter.Y - e.Position.Y, e.Position.X - m_dialCenter.X);     
-                if (angle < 0)
-                {
-                    angle += (2 * Math.PI);
-                }
-
-                if (m_havePreviousAngle)
-                {
-                    var delta = m_previousAngle - angle;
-                    
-                    // Account for going around the circle completely
-                    if (delta > Math.PI)
-                    {
-                        delta -= (Math.PI * 2);
-                    }
-                    else if (delta < Math.PI * -1)
-                    {
-                        delta += (Math.PI * 2);
-                    }
-
-                    //
-                    // control video
-                    // normal playback = 5s / 360 degrees
-                    //
-                    m_accumulatedTimeDelta += (5000 * delta / (2 * Math.PI));
-                    if (Math.Abs(m_accumulatedTimeDelta) > 100)
-                    {
-                        GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(m_accumulatedTimeDelta));
-                        m_accumulatedTimeDelta = 0;
-                    }
-                }
-
-                m_previousAngle = angle;
-                m_havePreviousAngle = true;
-            }
-            e.Handled = true;
+            GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(timeDelta));
         }
 
-        private void Dial_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        private void DialManipulationStarted(object sender, EventArgs e)
         {
             if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
             {
@@ -208,12 +160,7 @@ namespace FootballAnalyzerWindows
             }
         }
 
-        private void Dial_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-        {
-            m_havePreviousAngle = false;
-        }
-
-        private void PlayPause_Pressed(object sender, PointerRoutedEventArgs e)
+        private void PlayPausePressed(object sender, EventArgs e)
         {
             if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
             {
@@ -264,14 +211,11 @@ namespace FootballAnalyzerWindows
             // Accept input only from a pen or mouse with the left button pressed.
             PointerDeviceType pointerDevType = e.Pointer.PointerDeviceType;
             if (pointerDevType == PointerDeviceType.Pen ||
-                pointerDevType == PointerDeviceType.Mouse && pt.Properties.IsLeftButtonPressed)
+                pointerDevType == PointerDeviceType.Mouse && pt.Properties.IsLeftButtonPressed ||
+                pointerDevType == PointerDeviceType.Touch)
             {
                 m_inking = true;
                 e.Handled = true;
-            }
-            else if (pointerDevType == PointerDeviceType.Touch)
-            {
-                // Process touch input
             }
         }
 
