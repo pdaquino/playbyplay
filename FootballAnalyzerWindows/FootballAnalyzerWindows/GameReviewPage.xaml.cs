@@ -57,7 +57,6 @@ namespace FootballAnalyzerWindows
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
-            this.GameFilmPlayer.DefaultPlaybackRate = 0.75;
             this.m_dialCenter = new Point(Dial.ActualWidth / 2, Dial.ActualHeight /2);
 
             InkCanvas.PointerReleased += (o, e) =>
@@ -151,6 +150,7 @@ namespace FootballAnalyzerWindows
 
         private double m_previousAngle = 0;
         private bool m_havePreviousAngle = false;
+        private double m_accumulatedTimeDelta;
         private Point m_dialCenter;
         private void Dial_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
@@ -186,8 +186,12 @@ namespace FootballAnalyzerWindows
                     // control video
                     // normal playback = 5s / 360 degrees
                     //
-                    double videoDiffInMs = 5000 * delta / (2 * Math.PI);
-                    GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
+                    m_accumulatedTimeDelta += (5000 * delta / (2 * Math.PI));
+                    if (Math.Abs(m_accumulatedTimeDelta) > 100)
+                    {
+                        GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(m_accumulatedTimeDelta));
+                        m_accumulatedTimeDelta = 0;
+                    }
                 }
 
                 m_previousAngle = angle;
@@ -196,26 +200,16 @@ namespace FootballAnalyzerWindows
             e.Handled = true;
         }
 
-        private bool m_playVideoAfterDialManipulation = false;
         private void Dial_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
             if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
             {
-                m_playVideoAfterDialManipulation = true;
                 this.GameFilmPlayer.Pause();
-            }
-            else
-            {
-                m_playVideoAfterDialManipulation = false;
             }
         }
 
         private void Dial_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
-            if(m_playVideoAfterDialManipulation)
-            {
-                this.GameFilmPlayer.Play();
-            }
             m_havePreviousAngle = false;
         }
 
