@@ -59,7 +59,7 @@
             <StackPanel Name="PlayThumbnails" Orientation="Horizontal" Height="100" Width="auto"/>
         </ScrollViewer>
 
-        <Grid Grid.Column="2" Grid.Row="2" Background="#30000000">
+        <Grid Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" Background="#30000000">
             <Grid.RowDefinitions>
                 <RowDefinition Height="3*" />
                 <RowDefinition Height="*" />
