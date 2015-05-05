@@ -65,33 +65,20 @@ namespace FootballAnalyzer
                 // No play exists at the specified time
             }
         }
-
-        protected Play TryFindPlayAtExactTime(TimeSpan time)
+        public int GetPlayNumber(TimeSpan time)
         {
-            var index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
-            if (index >= 0)
+            int index = m_plays.Select(i => i.TimeInGame).ToList().BinarySearch(time);
+            if (index < 0)
             {
-                return m_plays[index];
+                index = ~index - 1;
             }
-            else
-            {
-                return null;
-            }
+            return index;
         }
 
-        public Play TryFindPlay(TimeSpan time)
+        public Play GetPlay(TimeSpan time)
         {
-            List<TimeSpan> possiblePlays = m_plays.Select(i => i.TimeInGame).ToList().FindAll(x => x.CompareTo(time) <= 0);
-            if (possiblePlays.Count() > 0)
-            {
-                possiblePlays.Sort();
-                TimeSpan playTimeSpan = possiblePlays.LastOrDefault();
-                return TryFindPlayAtExactTime(playTimeSpan);
-            }
-            else
-            {
-                return null;
-            }
+            int playNumber = this.GetPlayNumber(time);
+            return playNumber < 0 ? null : m_plays[playNumber];
         }
     }
 }

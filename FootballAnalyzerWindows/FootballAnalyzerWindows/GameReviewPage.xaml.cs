@@ -14,6 +14,11 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using FootballAnalyzer;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Input;
+using Windows.Devices.Input;
+using Windows.UI.Xaml.Shapes;
+using Windows.UI;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -52,7 +57,14 @@ namespace FootballAnalyzerWindows
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
-            this.VideoPlayer.DefaultPlaybackRate = 0.75;
+            this.GameFilmPlayer.DefaultPlaybackRate = 0.75;
+            this.m_dialCenter = new Point(Dial.ActualWidth / 2, Dial.ActualHeight /2);
+
+            InkCanvas.PointerReleased += (o, e) =>
+            {
+                m_inking = false;
+                e.Handled = true;
+            };
         }
 
         /// <summary>
@@ -66,10 +78,35 @@ namespace FootballAnalyzerWindows
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session. The state will be null the first time a page is visited.</param>
-        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private async void navigationHelper_LoadState(object o, LoadStateEventArgs e)
         {
             m_gameFilm = e.NavigationParameter as GameFilm;            
-            this.VideoPlayer.SetSource(await m_gameFilm.GetVideoStream(), m_gameFilm.VideoFile.ContentType);
+            this.GameFilmPlayer.SetSource(await m_gameFilm.GetVideoStream(), m_gameFilm.VideoFile.ContentType);
+
+            var bgColor = new SolidColorBrush(Colors.WhiteSmoke);
+
+            foreach(var play in m_gameFilm.Plays)
+            {
+                var button = new Button
+                {
+                    Background = bgColor,
+                    Content = new Image
+                    {
+                        Source = play.Thumbnail,
+                        Height = 100,
+                        Width = 150,
+                    },
+                    Tag = play
+                };
+
+                button.Click += (sender, arg) =>
+                {
+                    var associatedPlay = (sender as Button).Tag as Play;
+                    this.GameFilmPlayer.Position = associatedPlay.TimeInGame;
+                };
+
+                this.PlayThumbnails.Children.Add(button);
+            }
         }
 
         /// <summary>
@@ -112,26 +149,28 @@ namespace FootballAnalyzerWindows
 
         }
 
-        private double previousAngle = -1;
-        static Point center = new Point(125, 125);
+        private double m_previousAngle = 0;
+        private bool m_havePreviousAngle = false;
+        private Point m_dialCenter;
         private void Dial_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (Math.Sqrt(Math.Pow(e.Position.X - center.X, 2) + Math.Pow(e.Position.Y - center.Y, 2)) < 30)
+            
+            if (e.Position.Distance(m_dialCenter) < PlayPause.ActualHeight / 2)
             {
                 // If we run get a point to close to the center, ignore it and the previous remembered point
-                previousAngle = -1;
+                m_havePreviousAngle = false;
             }
             else
             {
-                var angle = Math.Atan2(center.Y - e.Position.Y, e.Position.X - center.X);     
+                var angle = Math.Atan2(m_dialCenter.Y - e.Position.Y, e.Position.X - m_dialCenter.X);     
                 if (angle < 0)
                 {
                     angle += (2 * Math.PI);
                 }
 
-                if (previousAngle > 0)
+                if (m_havePreviousAngle)
                 {
-                    var delta = previousAngle - angle;
+                    var delta = m_previousAngle - angle;
                     
                     // Account for going around the circle completely
                     if (delta > Math.PI)
@@ -145,14 +184,14 @@ namespace FootballAnalyzerWindows
 
                     //
                     // control video
-                    // normal playback = 10s / 360 degrees
+                    // normal playback = 5s / 360 degrees
                     //
-                    double normalRatePeriod = 6000;
-                    double videoDiffInMs = normalRatePeriod * delta / (2 * Math.PI);
-                    VideoPlayer.Position = VideoPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
+                    double videoDiffInMs = 5000 * delta / (2 * Math.PI);
+                    GameFilmPlayer.Position = GameFilmPlayer.Position.Add(TimeSpan.FromMilliseconds(videoDiffInMs));
                 }
 
-                previousAngle = angle;
+                m_previousAngle = angle;
+                m_havePreviousAngle = true;
             }
             e.Handled = true;
         }
@@ -160,10 +199,10 @@ namespace FootballAnalyzerWindows
         private bool m_playVideoAfterDialManipulation = false;
         private void Dial_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
-            if (this.VideoPlayer.CurrentState == MediaElementState.Playing)
+            if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
             {
                 m_playVideoAfterDialManipulation = true;
-                this.VideoPlayer.Pause();
+                this.GameFilmPlayer.Pause();
             }
             else
             {
@@ -175,21 +214,130 @@ namespace FootballAnalyzerWindows
         {
             if(m_playVideoAfterDialManipulation)
             {
-                this.VideoPlayer.Play();
+                this.GameFilmPlayer.Play();
             }
+            m_havePreviousAngle = false;
         }
 
         private void PlayPause_Pressed(object sender, PointerRoutedEventArgs e)
         {
-            if (this.VideoPlayer.CurrentState == MediaElementState.Playing)
+            if (this.GameFilmPlayer.CurrentState == MediaElementState.Playing)
             {
-                this.VideoPlayer.Pause();
+                this.GameFilmPlayer.Pause();
             }
-            else if (this.VideoPlayer.CurrentState == MediaElementState.Paused)
+            else if (this.GameFilmPlayer.CurrentState == MediaElementState.Paused)
             {
-                this.VideoPlayer.Play();
+                this.GameFilmPlayer.Play();
             }
         }
 
+        private void PreviousPlay_Click(object sender, RoutedEventArgs e)
+        {
+            int currentPlayIndex = m_gameFilm.GetPlayNumber(GameFilmPlayer.Position);
+            if (currentPlayIndex >= 0) 
+            {
+                Play currentPlay = m_gameFilm.Plays[currentPlayIndex];
+                
+                // If we are within 3 seconds of the start of a play go to the previous play, otherwise skip back to the
+                // beginning of this play
+
+                int nextPlayIndex = currentPlayIndex;
+                if (GameFilmPlayer.Position.TotalSeconds - currentPlay.TimeInGame.TotalSeconds < 3)
+                {
+                    nextPlayIndex = Math.Max(0, currentPlayIndex - 1);
+                }
+                this.GameFilmPlayer.Position = m_gameFilm.Plays[nextPlayIndex].TimeInGame;
+            }
+        }
+
+        private void NextPlay_Click(object sender, RoutedEventArgs e)
+        {
+            int currentPlayIndex = m_gameFilm.GetPlayNumber(GameFilmPlayer.Position);
+            if (currentPlayIndex < m_gameFilm.Plays.Count - 1)
+            {
+                this.GameFilmPlayer.Position = m_gameFilm.Plays[currentPlayIndex + 1].TimeInGame;
+            }
+        }
+
+        Point m_previousContactPoint;
+        bool m_inking;
+        private void InkCanvasPointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            // Get information about the pointer location.
+            PointerPoint pt = e.GetCurrentPoint(InkCanvas);
+            m_previousContactPoint = pt.Position;
+
+            // Accept input only from a pen or mouse with the left button pressed.
+            PointerDeviceType pointerDevType = e.Pointer.PointerDeviceType;
+            if (pointerDevType == PointerDeviceType.Pen ||
+                pointerDevType == PointerDeviceType.Mouse && pt.Properties.IsLeftButtonPressed)
+            {
+                m_inking = true;
+                e.Handled = true;
+            }
+            else if (pointerDevType == PointerDeviceType.Touch)
+            {
+                // Process touch input
+            }
+        }
+
+        private void InkCanvasPointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (m_inking)
+            {
+                PointerPoint pt = e.GetCurrentPoint(InkCanvas);
+
+                if (pt.Position.Distance(m_previousContactPoint) > 1)
+                {
+                    //
+                    // If the delta of the mouse is significant enough,
+                    // we add a line geometry to the Canvas
+                    Line line = new Line()
+                    {
+                        X1 = m_previousContactPoint.X,
+                        Y1 = m_previousContactPoint.Y,
+                        X2 = pt.Position.X,
+                        Y2 = pt.Position.Y,
+                        StrokeThickness = 10,
+                        Stroke = new SolidColorBrush(Colors.Yellow)
+                    };
+
+                    m_previousContactPoint = pt.Position;
+
+                    // Draw the line on the canvas by adding the Line object as
+                    // a child of the Canvas object.
+                    InkCanvas.Children.Add(line);
+                }
+            }            
+        }
+
+        private async void SaveDrawing_Click(object sender, RoutedEventArgs e)
+        {
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
+            await renderTargetBitmap.RenderAsync(InkCanvas, 150, 100);
+
+            var playNumber = m_gameFilm.GetPlayNumber(GameFilmPlayer.Position);
+            if (playNumber >= 0)
+            {
+                m_gameFilm.Plays[playNumber].Thumbnail = renderTargetBitmap;
+                var thumbnail = PlayThumbnails.Children.ToList()[playNumber] as Button;
+
+                if (thumbnail != null)
+                {
+                    var image = thumbnail.Content as Image;
+                    image.Source = renderTargetBitmap;
+                }
+            }
+        }
+
+        private void ClearDrawing_Click(object sender, RoutedEventArgs e)
+        {
+            InkCanvas.Children.Clear();
+        }
+
+        private void ToggleThumbnails(object sender, RoutedEventArgs e)
+        {
+            this.ThumbnailsScrollViewer.Visibility = ThumbnailsScrollViewer.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 }

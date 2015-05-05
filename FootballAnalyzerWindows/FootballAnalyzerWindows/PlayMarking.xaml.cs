@@ -102,7 +102,7 @@ namespace FootballAnalyzerWindows
 
         private void RefreshCurrentPlayInfo()
         {
-            Play currentPlay = m_gameFilm.TryFindPlay(GameFilmPlayer.Position);
+            Play currentPlay = m_gameFilm.GetPlay(GameFilmPlayer.Position);
             if(currentPlay != null)
             {
                 CurrentPlayInfoText.Text = String.Format(

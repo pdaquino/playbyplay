@@ -1,12 +1,12 @@
-﻿using FootballAnalyzerWindows.Models;
 using System;
+using Windows.UI.Xaml.Media;
+﻿using FootballAnalyzerWindows.Models;
 
 namespace FootballAnalyzer
 {
     public class Play
     {
-		// TODO associated drawing to save
-		// TODO thumbnail associated with play
+        public ImageSource Thumbnail { get; set; }
 
         public string Name { get; set; }
 
